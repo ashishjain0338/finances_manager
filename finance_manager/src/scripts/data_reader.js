@@ -77,8 +77,8 @@ function validateSingleCell(row, old_col_name, new_col_name, identity_for_alert 
             break;
         case "name":
             var names = resolveNameToPrimaryAndSecondary(col_val)
-            row["primary"] = names[0]
-            row["secondary"] = names[1]
+            row["primary_holder"] = names[0]
+            row["secondary_holder"] = names[1]
             break;
         case "nomination":
             // Either it could be undefined or it must be present in allowed-names

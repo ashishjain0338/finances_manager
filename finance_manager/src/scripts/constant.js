@@ -2,25 +2,25 @@ export const MANDATORY_COLS = [
     {
         "name": "fund_type",
         "pattern": ["type"]
-    },{
+    }, {
         "name": "bank_name",
         "pattern": ["bank"]
-    },{
+    }, {
         "name": "fund_number",
         "pattern": ["account", "a/c", "policy"]
-    },{
+    }, {
         "name": "name",
         "pattern": ["name"]
-    },{
+    }, {
         "name": "nomination",
         "pattern": ["nomination", "nominee"]
-    },{
+    }, {
         "name": "amount",
         "pattern": ["amount"]
-    },{
+    }, {
         "name": "is_closed",
         "pattern": ["closed"]
-    },{
+    }, {
         "name": "maturity_date",
         "pattern": ["maturity-date"]
     }
@@ -52,4 +52,22 @@ export const FILLER_WORDS = [
     "chand",
     "box",
     "factory"
+]
+
+export const DOUGHNUT_COLORS = [
+    "rgb(75,192,192)",
+    "rgb(255,159,64)",
+    "#36EB7E",
+    "rgb(255, 99, 132)",
+    "rgb(54, 162, 235)",
+    "rgb(255, 205, 86)",
+    "#90EBE2",
+    "#36EBD9",
+    "#FFB1C2",
+    "#FFC7B1",
+    "#FFE3D7",
+    "rgb(203, 86, 111)",
+    "rgb(88, 79, 112)",
+    "rgb(159, 156, 165)",
+    "rgb(127, 154, 157)"
 ]
