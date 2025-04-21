@@ -47,6 +47,11 @@ function MyDoughnut(props) {
             legend: {
                 display: true,
                 position: 'right', // top / bottom / left / right
+                labels: {
+                    filter: function (legendItem, chartData) {
+                      return chartData.labels.indexOf(legendItem.text) < 12; // Show only the first 10 legends
+                    }
+                  },
             },
             title: {
                 display: true,
