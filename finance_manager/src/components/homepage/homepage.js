@@ -2,9 +2,9 @@ import { LightModeNavBar } from "../navbar/navbar";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { Summary } from "../summary/summary";
+import { Maturity } from "../maturity/maturity";
 import { useState, useEffect } from "react";
 import { readLocalExcel } from "../../scripts/data_reader";
-import alasql from 'alasql';
 import { JSON_DB } from "../../scripts/json_db";
 
 function HomePage() {
@@ -26,7 +26,7 @@ function HomePage() {
             <LightModeNavBar />
             <div className="container">
                 <Tabs
-                    defaultActiveKey="summary"
+                    defaultActiveKey="maturity_planning"
                     id="uncontrolled-tab-example"
                     className="mb-3"
                     fill
@@ -35,7 +35,7 @@ function HomePage() {
                         <Summary dbObj={dbObj}/>
                     </Tab>
                     <Tab eventKey="maturity_planning" title="Maturity Planning">
-                        Tab content for Profile
+                        <Maturity dbObj={dbObj}/>
                     </Tab>
                     <Tab eventKey="spof" title="SPOF">
                         Tab content for Contact
