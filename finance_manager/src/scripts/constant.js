@@ -71,3 +71,16 @@ export const DOUGHNUT_COLORS = [
     "rgb(159, 156, 165)",
     "rgb(127, 154, 157)"
 ]
+
+export const DUMMMY_AGGRID_DATA = [
+    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { make: "Ford", model: "F-Series", price: 33850, electric: false },
+    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
+]
+
+export const DUMMMY_AGGRID_COLDEFS = [
+    { field: "make" },
+    { field: "model" },
+    { field: "price" },
+    { field: "electric" }
+]

@@ -1,0 +1,39 @@
+/* Alternate row colors */
+.ag-theme-alpine .ag-row:nth-child(even) {
+    background-color: #f8f9fa; /* Light grey */
+  }
+  
+  .ag-theme-alpine .ag-row:nth-child(odd) {
+    background-color: #ffffff; /* White */
+  }
+  
+ /* Lighter, modern header style */
+.ag-theme-alpine .ag-header {
+    background-color: #e2e8f0 !important; /* Light slate gray */
+    color: #1f2937; /* Charcoal text */
+    font-weight: 600;
+    border-bottom: 1px solid #cbd5e1;
+  }
+  
+  /* Optional: subtle shadow for depth */
+  .ag-theme-alpine .ag-header::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background-color: #949eab;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Header cell padding and text tweaks */
+  .ag-theme-alpine .ag-header-cell-label {
+    padding: 10px;
+    font-size: 14px;
+    text-transform: capitalize;
+  }
+  
+  /* Optional: row hover effect */
+  .ag-theme-alpine .ag-row:hover {
+    background-color: #e6f0ff;
+    transition: background-color 0.3s ease;
+  }
+  
