@@ -84,3 +84,15 @@ export const DUMMMY_AGGRID_COLDEFS = [
     { field: "price" },
     { field: "electric" }
 ]
+
+export const DUMMY_DOUGHTNUT_DATA = {
+    labels: ['Red', 'Blue', 'Yellow'],
+    datasets: [
+        {
+            label: 'My Dataset',
+            data: [300, 50, 100],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            borderWidth: 1,
+        },
+    ],
+};

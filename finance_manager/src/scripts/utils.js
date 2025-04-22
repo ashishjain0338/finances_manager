@@ -62,7 +62,11 @@ export function formatColDataForAGGrid(headers, order=[]){
             out.push({field : headers[i]})
         }
     }
-    console.log(out)
     return out
-    
+}
+
+
+export function convertToIndiaCommaNotationFxn(val){
+    if (val == null) return '';
+    return new Intl.NumberFormat('en-IN').format(val);
 }

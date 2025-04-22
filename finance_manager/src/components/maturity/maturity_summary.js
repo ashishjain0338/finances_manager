@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react"
-import { getCurrentDate, formatColDataForAGGrid } from "../../scripts/utils";
+import { getCurrentDate, formatColDataForAGGrid, convertToIndiaCommaNotationFxn } from "../../scripts/utils";
 import { DUMMMY_AGGRID_COLDEFS, DUMMMY_AGGRID_DATA } from "../../scripts/constant";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
@@ -10,8 +10,8 @@ import "./ag-grid.css"
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 function MaturitySummary(props) {
-    const [rowData, setRowData] = useState(DUMMMY_AGGRID_DATA);
-    const [colDefs, setColDefs] = useState(DUMMMY_AGGRID_COLDEFS);
+    const [rowData, setRowData] = useState([]);
+    const [colDefs, setColDefs] = useState([]);
     const [totalRow, setTotalRow] = useState([])
     const [cached, setCached] = useState({})
     
@@ -29,10 +29,7 @@ function MaturitySummary(props) {
         // other grid options ...
     }
 
-    function convertToIndiaCommaNotationFxn(val){
-        if (val == null) return '';
-        return new Intl.NumberFormat('en-IN').format(val);
-    }
+    
 
     useEffect(() => {
         // Get Data for Summary
@@ -82,7 +79,6 @@ function MaturitySummary(props) {
 
     return (
         <div>
-            
             <div className="ag-theme-alpine" style={{ height: 400 }}>
                 <AgGridReact
                     rowData={rowData}

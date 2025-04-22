@@ -81,28 +81,45 @@ class JSON_DB {
         return [["Liquid", "Non-Liquid"], [liquid, non_liquid], liquid + non_liquid]
     }
 
-    getTotalSumRow(data, exclude_columns = []) {
+    getTotalSumRow(data, exclude_columns = [], include_columns = ["*"]) {
+        
         if (data.length == 0)
-            return data
+            return {}
         var headers = Object.keys(data[0])
         var tot_row = {}
-        for (var i = 0; i < headers.length; i++) {
-            if (!exclude_columns.includes(headers[i])) {
-                tot_row[headers[i]] = 0;
+        if (include_columns[0] == "*"){
+            // All columns except excluding
+            for (var i = 0; i < headers.length; i++) {
+                if (!exclude_columns.includes(headers[i])) {
+                    tot_row[headers[i]] = 0;
+                }
+    
             }
-
-        }
-        tot_row['fund_type'] = "Total"
-
-        for (var i = 0; i < data.length; i++) {
-            var curData = data[i]
-            for (var j = 0; j < headers.length; j++) {
-                if (!exclude_columns.includes(headers[j])) {
-                    tot_row[headers[j]] += curData[headers[j]];
+    
+            for (var i = 0; i < data.length; i++) {
+                var curData = data[i]
+                for (var j = 0; j < headers.length; j++) {
+                    if (!exclude_columns.includes(headers[j])) {
+                        tot_row[headers[j]] += curData[headers[j]];
+                    }
+                }
+            }
+        }else{
+            // only go for include columns, ignore exlude columns
+            for (var i = 0; i < headers.length; i++) {
+                if (include_columns.includes(headers[i])) {
+                    tot_row[headers[i]] = 0;
+                }
+            }
+            for (var i = 0; i < data.length; i++) {
+                var curData = data[i]
+                for (var j = 0; j < headers.length; j++) {
+                    if (include_columns.includes(headers[j])) {
+                        tot_row[headers[j]] += curData[headers[j]];
+                    }
                 }
             }
         }
-        // console.log(tot_row)
         return tot_row
 
     }
@@ -257,6 +274,20 @@ class JSON_DB {
         // result.push(total_row)
         return [result, [total_row]]
 
+    }
+
+    getMaturityData(start, end){
+        var query = `
+            SELECT 
+            bank_name as Bank, fund_type, fund_number, amount, maturity_date, primary_holder, secondary_holder, nomination 
+            FROM ?
+            WHERE DATE(maturity_date) >= DATE('${start}') AND DATE(maturity_date) <= DATE('${end}')
+            ORDER BY DATE(maturity_date)
+        `
+        const result = alasql(query, [this.openData])
+        var tot_row = this.getTotalSumRow(result, [], ["amount"])
+        tot_row["Bank"] = "Total"
+        return [result, [tot_row]]
     }
 
 }

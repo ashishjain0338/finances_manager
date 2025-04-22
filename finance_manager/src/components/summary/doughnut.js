@@ -1,24 +1,15 @@
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js';
 import { useEffect, useState } from 'react';
-import { getBackgroundColor } from '../../scripts/utils';
+import { getBackgroundColor, convertToIndiaCommaNotationFxn } from '../../scripts/utils';
+import { DUMMY_DOUGHTNUT_DATA } from '../../scripts/constant';
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
-const dummyData = {
-    labels: ['Red', 'Blue', 'Yellow'],
-    datasets: [
-        {
-            label: 'My Dataset',
-            data: [300, 50, 100],
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-            borderWidth: 1,
-        },
-    ],
-};
+
 
 
 function MyDoughnut(props) {
-    const [data, setData] = useState(dummyData)
+    const [data, setData] = useState(DUMMY_DOUGHTNUT_DATA)
     const [title, setTitle] = useState(props.title)// Title will not change on runtime
 
 
@@ -49,9 +40,9 @@ function MyDoughnut(props) {
                 position: 'right', // top / bottom / left / right
                 labels: {
                     filter: function (legendItem, chartData) {
-                      return chartData.labels.indexOf(legendItem.text) < 12; // Show only the first 10 legends
+                        return chartData.labels.indexOf(legendItem.text) < 12; // Show only the first 10 legends
                     }
-                  },
+                },
             },
             title: {
                 display: true,
@@ -69,7 +60,8 @@ function MyDoughnut(props) {
                         var value = context['parsed'];
                         var percentage = value / tot * 100;
                         percentage = Math.round(percentage * 10) / 10
-                        var out = `${value} (${percentage}%)`
+                        var valueWithIndianCommaNotation = convertToIndiaCommaNotationFxn(value)
+                        var out = `${valueWithIndianCommaNotation} (${percentage}%)`
                         return out;
                     }
                 }

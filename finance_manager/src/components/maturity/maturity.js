@@ -74,8 +74,6 @@ function Maturity(props) {
                     <MaturityCustom dbObj={props.dbObj} isSumMode={isSumMode}/>
                 </div>
             </Collapse>
-
-
         </div>
     )
 }
