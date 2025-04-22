@@ -11,6 +11,7 @@
     "alasql": "^4.6.6",
     "bootstrap": "^5.3.5",
     "chart.js": "^4.4.9",
+    "dayjs": "^1.11.13",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.9",
     "react-chartjs-2": "^5.3.0",
