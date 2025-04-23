@@ -3,7 +3,7 @@ import { Row, Col, Button, Collapse } from "react-bootstrap";
 import { CaretUpFill, CaretDownFill } from '../icons/icons';
 import { MaturitySummary } from './maturity_summary';
 import { MaturityCustom } from './maturity_custom';
-import "./slider-button.css"
+import "../common_styles/slider-button.css"
 
 function Maturity(props) {
 
@@ -12,9 +12,6 @@ function Maturity(props) {
     const [customSectionCollapse, setCustomSectionCollapse] = useState(true);
     const [isSumMode, setIsSumMode] = useState(false);
     const handleToggle = () => setIsSumMode(!isSumMode);
-
-    useEffect(() => {
-    }, [props.dbObj])
 
     return (
         <div style={{ border: "5px" }}>

@@ -9,7 +9,7 @@ import { CustomMaturityDoughnut } from './maturity_custom_doughnut';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { themeAlpine } from "ag-grid-community";
-import "./ag-grid.css"
+import "../common_styles/ag-grid.css"
 
 
 

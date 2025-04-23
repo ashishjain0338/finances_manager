@@ -4,7 +4,7 @@ import { DUMMMY_AGGRID_COLDEFS, DUMMMY_AGGRID_DATA } from "../../scripts/constan
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { themeAlpine } from "ag-grid-community";
-import "./ag-grid.css"
+import "../common_styles/ag-grid.css"
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);

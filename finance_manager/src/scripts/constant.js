@@ -54,6 +54,14 @@ export const FILLER_WORDS = [
     "factory"
 ]
 
+/* It would be good not to expand the list for 10-20 years to come 🙏*/
+export const HONORED_NAMES = [
+    "navneet",
+    "shri",
+    "shree",
+    "sharda"
+]
+
 export const DOUGHNUT_COLORS = [
     "rgb(75,192,192)",
     "rgb(255,159,64)",

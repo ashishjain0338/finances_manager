@@ -1,4 +1,4 @@
-import { DOUGHNUT_COLORS } from "./constant";
+import { DOUGHNUT_COLORS, HONORED_NAMES } from "./constant";
 
 export function convertSqlResultToDoughNutInput(result, label_key, val_key, capitalize = true){
     var labels = [], data = [];
@@ -67,6 +67,22 @@ export function formatColDataForAGGrid(headers, order=[]){
 
 
 export function convertToIndiaCommaNotationFxn(val){
-    if (val == null) return '';
+    if (val == null) return 0;
     return new Intl.NumberFormat('en-IN').format(val);
+}
+
+export function checkSpofCondition(name){
+    // Returns true if It satisfy the SPOF condition
+    if(name === undefined || HONORED_NAMES.includes(name))
+        return true;
+    return false;
+}
+
+export function getValFromJSObject(obj, key, valueIfKeyNotFound = 0) {
+    // Check if the key exists in the object
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        return obj[key];
+    } else {
+        return valueIfKeyNotFound;
+    }
 }

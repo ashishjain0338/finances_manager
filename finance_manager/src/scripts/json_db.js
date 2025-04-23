@@ -1,14 +1,15 @@
 import alasql from 'alasql';
-import { convertSqlResultToDoughNutInput, getCurrentDate, getFinancialYear, deduceCurrentFinancialYear } from './utils';
+import {
+    convertSqlResultToDoughNutInput, getCurrentDate, getFinancialYear, deduceCurrentFinancialYear, checkSpofCondition
+    , getValFromJSObject
+} from './utils';
 
 class JSON_DB {
     constructor(raw_data) {
         // Dividing the data in 2 parts since, Closed data is required very less as compared to openData which will be queried more
         this.openData = alasql('SELECT * FROM ? WHERE NOT is_closed', [raw_data]);
         this.closedData = alasql('SELECT * FROM ? WHERE is_closed', [raw_data]);
-        // console.log("Check Db Object Constructur")
-        // console.log("OpenData = ", this.openData)
-        // console.log("ClosedData = ", this.closedData)
+        this.precomputedSPOFData = this.computeSPOFData()
     }
 
     sayHello() {
@@ -82,41 +83,38 @@ class JSON_DB {
     }
 
     getTotalSumRow(data, exclude_columns = [], include_columns = ["*"]) {
-        
+
         if (data.length == 0)
             return {}
-        var headers = Object.keys(data[0])
+        var headers = Object.keys(data[0]) // ToDo: The problem with this is sometimes, first-row doesn't contain all columns, so inconsistent headers 
         var tot_row = {}
-        if (include_columns[0] == "*"){
+        if (include_columns[0] == "*") {
             // All columns except excluding
             for (var i = 0; i < headers.length; i++) {
                 if (!exclude_columns.includes(headers[i])) {
                     tot_row[headers[i]] = 0;
                 }
-    
+
             }
-    
+
             for (var i = 0; i < data.length; i++) {
                 var curData = data[i]
                 for (var j = 0; j < headers.length; j++) {
                     if (!exclude_columns.includes(headers[j])) {
-                        tot_row[headers[j]] += curData[headers[j]];
+                        tot_row[headers[j]] += getValFromJSObject(curData, headers[j]);
                     }
                 }
             }
-        }else{
+        } else {
             // only go for include columns, ignore exlude columns
-            for (var i = 0; i < headers.length; i++) {
-                if (include_columns.includes(headers[i])) {
-                    tot_row[headers[i]] = 0;
-                }
+            for (var i = 0; i < include_columns.length; i++) {
+                tot_row[include_columns[i]] = 0;
             }
             for (var i = 0; i < data.length; i++) {
                 var curData = data[i]
-                for (var j = 0; j < headers.length; j++) {
-                    if (include_columns.includes(headers[j])) {
-                        tot_row[headers[j]] += curData[headers[j]];
-                    }
+                for (var j = 0; j < include_columns.length; j++) {
+                    var col = include_columns[j]
+                    tot_row[col] += getValFromJSObject(curData, col);
                 }
             }
         }
@@ -237,13 +235,13 @@ class JSON_DB {
     }
 
     getMaturitySummary(mode) {
-        
+
         var mature_result, closed_result
-        switch(mode){
+        switch (mode) {
             case "count":
                 mature_result = this.getMaturityForNextNyearsCount(5)
                 closed_result = this.getClosedByFundTypeCount()
-            break;
+                break;
             case "sum":
                 mature_result = this.getMaturityForNextNyearsSum(5)
                 closed_result = this.getClosedByFundTypeSum()
@@ -254,7 +252,7 @@ class JSON_DB {
 
         if (mature_result.length == 0 && closed_result.length == 0) {
             // This is when data is not loaded
-            return [[],[]]
+            return [[], []]
         }
         // join both tables
         var headers_mature_table = Object.keys(mature_result[0])
@@ -276,7 +274,7 @@ class JSON_DB {
 
     }
 
-    getMaturityData(start, end){
+    getMaturityData(start, end) {
         var query = `
             SELECT 
             bank_name as Bank, fund_type, fund_number, amount, maturity_date, primary_holder, secondary_holder, nomination 
@@ -288,6 +286,171 @@ class JSON_DB {
         var tot_row = this.getTotalSumRow(result, [], ["amount"])
         tot_row["Bank"] = "Total"
         return [result, [tot_row]]
+    }
+
+
+    computeSPOFData() {
+        /*
+            Since the Data is less and Sql query is way long, we will just iterate over and store the data
+        */
+        var dangerLevels = []
+        for (var i = 0; i < 6; i++) {// 6 Levels
+            dangerLevels.push([])
+        }
+        for (const row of this.openData) {
+            var p = checkSpofCondition(row["primary_holder"]), s = checkSpofCondition(row["secondary_holder"]), n = checkSpofCondition(row["nomination"])
+            // console.log(p, s, n)
+            var dangerLevelIndex = 0;
+
+            if (p && s && n) {
+                // Danger Level-I: No Primary, No Secondary, No Nominee
+                dangerLevelIndex = 0;
+            } else if (p && s && !n) {
+                // Danger Level-2: No Primary, No Secondary, Yes Nominee
+                dangerLevelIndex = 1;
+            } else if ((!p && s && n) || (p && !s && n)) {
+                // Danger Level-3: Yes Primary, No Secondary, No Nominee OR No Primary, Yes Secondary, No Nominee
+                dangerLevelIndex = 2;
+            } else if ((!p && s && !n) || (p && !s && !n)) {
+                // Danger Level-4: Yes Primary, No Secondary, Yes Nominee OR No Primary, Yes Secondary, Yes Nominee
+                dangerLevelIndex = 3;
+            } else if (!p && !s && n) {
+                // Danger Level-5: Yes Primary, Yes Secondary, No Nominee
+                dangerLevelIndex = 4;
+            } else if (!p && !s && !n) {
+                // Secured: Yes Primary, Yes Secondary, Yes Nominee
+                dangerLevelIndex = 5;
+            } else {
+                console.warn("Following Row belong to no danger level| Why!!", row)
+            }
+            dangerLevels[dangerLevelIndex].push(row)
+
+
+        }
+        return dangerLevels
+    }
+
+    getSPOFCount(groupByCol = "bank_name") {
+        var subqueryResults = []
+        // Run Subquery
+        for (var i = 0; i < this.precomputedSPOFData.length; i++) {
+            var query = `
+                SELECT ${groupByCol}, COUNT(*) AS dangerLevel${i + 1}
+                FROM ?
+                GROUP BY ${groupByCol}
+            `
+            subqueryResults.push(alasql(query, [this.precomputedSPOFData[i]]))
+        }
+        // console.log("Here",subqueryResults)
+
+        // Merge Subquery Results
+        /*
+            Converting:
+            [[{A: 1, B: 2}, {A: 2, B: 3}], [{A: 2, C: 1}, {A: 3, C: 5}]]
+
+            To: (A is group by Column)
+            [
+                {A: 1}, {B: 2},
+                {A: 2}, {B : 3}, {C, 1},
+                {A: 3}, {C: 5}
+            ]
+        */
+        var indexMap = {}
+        var out = []
+        var cols = [groupByCol, "dangerLevel1", "dangerLevel2", "dangerLevel3", "dangerLevel4", "dangerLevel5", "dangerLevel6"]
+        for (var i = 0; i < subqueryResults.length; i++) {
+            for (var j = 0; j < subqueryResults[i].length; j++) {
+                var row = subqueryResults[i][j];
+                var groupByColVal = row[groupByCol];
+                var valKey = `dangerLevel${i + 1}`
+                if (Object.keys(indexMap).includes(groupByColVal)) {
+                    out[indexMap[groupByColVal]][valKey] = row[valKey]
+                } else {
+                    // New Entry
+                    var add = {}
+                    // Add current-Val and also the group by column
+                    add[valKey] = row[valKey]
+                    add[groupByCol] = groupByColVal
+                    out.push(add)
+                    // Update index in indexMap
+                    indexMap[groupByColVal] = out.length - 1;//Last Index
+                }
+            }
+        }
+        return out;
+    }
+
+    getSPOFSum(groupByCol = "bank_name") {
+        var subqueryResults = []
+        // Run Subquery
+        for (var i = 0; i < this.precomputedSPOFData.length; i++) {
+            var query = `
+                SELECT ${groupByCol}, SUM(amount) AS dangerLevel${i + 1}
+                FROM ?
+                GROUP BY ${groupByCol}
+            `
+            subqueryResults.push(alasql(query, [this.precomputedSPOFData[i]]))
+        }
+        // console.log("Here",subqueryResults)
+
+        // Merge Subquery Results
+        /*
+            Converting:
+            [[{A: 1, B: 2}, {A: 2, B: 3}], [{A: 2, C: 1}, {A: 3, C: 5}]]
+
+            To: (A is group by Column)
+            [
+                {A: 1}, {B: 2},
+                {A: 2}, {B : 3}, {C, 1},
+                {A: 3}, {C: 5}
+            ]
+        */
+        var indexMap = {}
+        var out = []
+        var cols = [groupByCol, "dangerLevel1", "dangerLevel2", "dangerLevel3", "dangerLevel4", "dangerLevel5", "dangerLevel6"]
+        for (var i = 0; i < subqueryResults.length; i++) {
+            for (var j = 0; j < subqueryResults[i].length; j++) {
+                var row = subqueryResults[i][j];
+                var groupByColVal = row[groupByCol];
+                var valKey = `dangerLevel${i + 1}`
+                if (Object.keys(indexMap).includes(groupByColVal)) {
+                    out[indexMap[groupByColVal]][valKey] = row[valKey]
+                } else {
+                    // New Entry
+                    var add = {}
+                    // Add current-Val and also the group by column
+                    add[valKey] = row[valKey]
+                    add[groupByCol] = groupByColVal
+                    out.push(add)
+                    // Update index in indexMap
+                    indexMap[groupByColVal] = out.length - 1;//Last Index
+                }
+            }
+        }
+        return out;
+    }
+
+    getSPOFSummary(groupByCol, mode) {
+        var data = []
+        switch (mode) {
+            case "count":
+                data = this.getSPOFCount(groupByCol)
+                break;
+            case "sum":
+                data = this.getSPOFSum(groupByCol)
+                break;
+            default:
+                break;
+        }
+        if (data.length == 0) {
+            return [[], [], {}];
+        }
+        // Process the data, Add a Total-Row
+        var include_columns = ["dangerLevel1", "dangerLevel2", "dangerLevel3", "dangerLevel4", "dangerLevel5", "dangerLevel6"]
+        var total_row = this.getTotalSumRow(data, [], include_columns)
+        var headers = [groupByCol, "dangerLevel1", "dangerLevel2", "dangerLevel3", "dangerLevel4", "dangerLevel5", "dangerLevel6"]
+        return [data, headers, total_row]
+
     }
 
 }

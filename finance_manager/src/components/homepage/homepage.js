@@ -3,6 +3,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { Summary } from "../summary/summary";
 import { Maturity } from "../maturity/maturity";
+import { SPOF } from "../spof/spof";
 import { useState, useEffect } from "react";
 import { readLocalExcel } from "../../scripts/data_reader";
 import { JSON_DB } from "../../scripts/json_db";
@@ -26,7 +27,7 @@ function HomePage() {
             <LightModeNavBar />
             <div className="container">
                 <Tabs
-                    defaultActiveKey="maturity_planning"
+                    defaultActiveKey="spof"
                     id="uncontrolled-tab-example"
                     className="mb-3"
                     fill
@@ -38,7 +39,7 @@ function HomePage() {
                         <Maturity dbObj={dbObj}/>
                     </Tab>
                     <Tab eventKey="spof" title="SPOF">
-                        Tab content for Contact
+                        <SPOF dbObj={dbObj}/>
                     </Tab>
                     <Tab eventKey="custom" title="Custom">
                         Tab content for Contact
