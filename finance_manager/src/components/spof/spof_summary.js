@@ -3,8 +3,9 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { themeAlpine } from "ag-grid-community";
 import { Row, Col } from "react-bootstrap";
-import { formatColDataForAGGrid, convertToIndiaCommaNotationFxn } from "../../scripts/utils";
+import { formatColDataForAGGrid, convertToIndiaCommaNotationFxn, convertSqlResultToDoughNutInput } from "../../scripts/utils";
 import "../common_styles/ag-grid.css"
+import { MyDoughnut } from "../summary/doughnut";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -14,6 +15,7 @@ function SPOFSummary(props) {
     const [colDefs, setColDefs] = useState([]);
     const [totalRow, setTotalRow] = useState([])
     const [cached, setCached] = useState({})
+    const [plotData, setPlotData] = useState([[], [], 0])
 
     // Apply settings across all columns
     const defaultColDef = useMemo(() => ({
@@ -72,6 +74,19 @@ function SPOFSummary(props) {
         setRowData(cachedData["rows"])
         setColDefs(cachedData["headers"])
         setTotalRow(cachedData["total"])
+        
+        // Also Set Plot for Doughnut
+
+        var tot_row = cachedData["total"][0]
+        var labels = [], data = [], total = 0
+        for(var i = 1; i <= 6; i++){
+            var key = `dangerLevel${i}`
+            labels.push(`Level-${i}`)
+            data.push(tot_row[key])
+            total += tot_row[key]
+
+        }
+        setPlotData([labels, data, total])
     }
 
     return (
@@ -92,7 +107,8 @@ function SPOFSummary(props) {
                     </div>
                 </Col>
                 <Col>
-                    <p>Hello World</p>
+                    <MyDoughnut plotData={plotData}/>
+                    <p style={{ textAlign: "right" }}>Total: {plotData[2]}</p>
                 </Col>
             </Row>
 
