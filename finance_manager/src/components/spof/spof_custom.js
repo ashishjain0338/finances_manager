@@ -1,9 +1,11 @@
 import { Row, Col, Form } from "react-bootstrap"
 import { useState, useEffect, useMemo } from "react"
-import { formatColDataForAGGrid, convertToIndiaCommaNotationFxn } from "../../scripts/utils";
+import { formatColDataForAGGrid, convertToIndiaCommaNotationFxn, convertSqlResultToDoughNutInput } from "../../scripts/utils";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { themeAlpine } from "ag-grid-community";
+import { MyDoughnut } from "../summary/doughnut";
+import { SPOFDefination } from "./spof_definations";
 import "../common_styles/ag-grid.css"
 
 
@@ -16,6 +18,8 @@ function SPOFCustom(props) {
     const [colDefs, setColDefs] = useState([]);
     const [totalRow, setTotalRow] = useState([]);
     const [isBankGroupBy, setIsBankGroupBy] = useState(true);
+    const [level, setLevel] = useState(0);
+    const [plotData, setPlotData] = useState([["A", "B"],[1,2],0])
 
     // Apply settings across all columns
     const defaultColDef = useMemo(() => ({
@@ -23,13 +27,17 @@ function SPOFCustom(props) {
         // flex:1,
     }))
 
+    // function changeGroupbyMethodFor
+
     function changeLevelFromDropdown(val) {
         val = parseInt(val);
         if (val >= 1 && val <= 6) {
             setDangerLevelData(val)
+            getAndSetPlotData(val)
+            setLevel(val)
         }
-
     }
+
     function setDangerLevelData(level) {
         var [data, tot_row] = props.dbObj.getSpofDataByLevel(level)
         if (data.length == 0) {
@@ -56,9 +64,29 @@ function SPOFCustom(props) {
 
     }
 
+    function getAndSetPlotData(level){
+        var groupByCol
+        console.log("Check level :", level, " GroupbyCol(isBank) : ", isBankGroupBy)
+        if(isBankGroupBy){
+            groupByCol = "bank_name";
+        }else{
+            groupByCol = "fund_type"
+        }
+        var data = props.dbObj.getSpofDataByLevelForDoughnut(level, groupByCol)
+        if (data == []){
+            // Do Nothing
+        }
+        var cleaned = convertSqlResultToDoughNutInput(data, groupByCol, "amount");
+        setPlotData(cleaned)
+
+    }
 
     useEffect(() => {
-        setDangerLevelData(1)
+        getAndSetPlotData(level)
+    }, [isBankGroupBy])
+
+    useEffect(() => {
+        // setDangerLevelData(1)
     }, [props.dbObj])
 
 
@@ -83,6 +111,7 @@ function SPOFCustom(props) {
                     </Row>
                     <Row>
                         <Col>
+                        <SPOFDefination level={level} />
                             <hr />
                             <div className="ag-theme-alpine" style={{ height: 400 }}>
                                 <AgGridReact
@@ -100,7 +129,7 @@ function SPOFCustom(props) {
                     </Row>
                 </Col>
                 <Col md={3}>
-                    <div className="switch-container" style={{ float: "right"}}>
+                    <div className="switch-container" style={{ float: "right" }}>
                         <label className="switch">
                             <input type="checkbox" checked={isBankGroupBy} onChange={() => setIsBankGroupBy(!isBankGroupBy)} />
                             <span className="slider"></span>
@@ -108,7 +137,9 @@ function SPOFCustom(props) {
                         <span className="switch-label" style={{ fontSize: "1rem" }}>{isBankGroupBy ? 'Group-by Bank' : 'Group-by Fund-Type'}</span>
                     </div>
 
+                    <MyDoughnut plotData={plotData}/>
                 </Col>
+
 
             </Row>
 

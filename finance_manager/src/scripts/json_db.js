@@ -453,11 +453,12 @@ class JSON_DB {
     }
 
     getSpofDataByLevel(level) {
-        if (this.precomputedSPOFData.length <= level) {
+        if (this.precomputedSPOFData.length <= level - 1) {
             // Data not present
-            return []
+            return [[], []]
         }
         var levelData = this.precomputedSPOFData[level - 1]
+        // console.log("Level Data for level : ", level, levelData)
 
         var query = `
                 SELECT 
@@ -469,6 +470,26 @@ class JSON_DB {
         var tot_row = this.getTotalSumRow(result, [], ["amount"])
         tot_row["Bank"] = "Total"
         return [result, [tot_row]]
+    }
+
+    getSpofDataByLevelForDoughnut(level, groupbyCol = "bank_name") {
+        if(level <= 0 || level == undefined)
+            return []
+        if (this.precomputedSPOFData.length <= level - 1) {
+            // Data not present
+            return []
+        }
+        var levelData = this.precomputedSPOFData[level - 1]
+
+        var query = `
+                SELECT 
+                ${groupbyCol} , SUM(amount) as amount
+                FROM ?
+                GROUP BY ${groupbyCol}
+                ORDER BY amount DESC
+        `
+        const result = alasql(query, [levelData])
+        return result
     }
 
 }
