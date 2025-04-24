@@ -104,3 +104,12 @@ export const DUMMY_DOUGHTNUT_DATA = {
         },
     ],
 };
+
+export const DANGER_LEVEL_DEFS = {
+    "1": [{"primary": false, "secondary": false, "nomination": false}],
+    "2": [{"primary": false, "secondary": false, "nomination": true}],
+    "3": [{"primary": true, "secondary": false, "nomination": false}, {"primary": false, "secondary": true, "nomination": false} ],
+    "4": [{"primary": true, "secondary": false, "nomination": true}, {"primary": false, "secondary": true, "nomination": true}],
+    "5": [{"primary": true, "secondary": true, "nomination": false}],
+    "6": [{"primary": true, "secondary": true, "nomination": true}],
+}

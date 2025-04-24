@@ -462,7 +462,7 @@ class JSON_DB {
 
         var query = `
                 SELECT 
-                bank_name as Bank, fund_type, fund_number, amount, primary_holder, secondary_holder, nomination, DATE(maturity_date)
+                bank_name as Bank, fund_type, fund_number, amount, primary_holder, secondary_holder, nomination, DATE(maturity_date) as maturity_date
                 FROM ?
                 ORDER BY amount DESC
         `
