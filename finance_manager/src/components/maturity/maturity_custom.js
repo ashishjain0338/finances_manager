@@ -45,11 +45,7 @@ function MaturityCustom(props) {
         }
 
         var headers = Object.keys(data[0])
-
-
         var formattedHeaders = formatColDataForAGGrid(headers)
-
-
         for (var i = 0; i < formattedHeaders.length; i++) {
             if (formattedHeaders[i]["field"] == "amount") {
                 formattedHeaders[i]["cellStyle"] = { textAlign: "right" }
@@ -60,7 +56,6 @@ function MaturityCustom(props) {
         setRowData(data)
         setColDefs(formattedHeaders)
         setTotalRow(tot_row)
-        console.log("Check-Me : ", data)
     }
 
     function changeDate(val, mode) {

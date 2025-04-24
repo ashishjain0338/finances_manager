@@ -450,7 +450,25 @@ class JSON_DB {
         var total_row = this.getTotalSumRow(data, [], include_columns)
         var headers = [groupByCol, "dangerLevel1", "dangerLevel2", "dangerLevel3", "dangerLevel4", "dangerLevel5", "dangerLevel6"]
         return [data, headers, total_row]
+    }
 
+    getSpofDataByLevel(level) {
+        if (this.precomputedSPOFData.length <= level) {
+            // Data not present
+            return []
+        }
+        var levelData = this.precomputedSPOFData[level - 1]
+
+        var query = `
+                SELECT 
+                bank_name as Bank, fund_type, fund_number, amount, primary_holder, secondary_holder, nomination, DATE(maturity_date)
+                FROM ?
+                ORDER BY amount DESC
+        `
+        const result = alasql(query, [levelData])
+        var tot_row = this.getTotalSumRow(result, [], ["amount"])
+        tot_row["Bank"] = "Total"
+        return [result, [tot_row]]
     }
 
 }

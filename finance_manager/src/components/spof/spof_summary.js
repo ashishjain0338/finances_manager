@@ -54,7 +54,6 @@ function SPOFSummary(props) {
                 }
             }
         }
-        console.log(localCache)
         setCached(localCache)
     }, [props.dbObj])
 
@@ -67,7 +66,6 @@ function SPOFSummary(props) {
     function loadFromCache(mode, groupByCol) {
         var cacheKey = `${groupByCol}_${mode}`
         var cachedData = cached[cacheKey]
-        console.log(cachedData, cacheKey)
         if (cachedData == undefined) {
             return;
         }
@@ -93,7 +91,7 @@ function SPOFSummary(props) {
         <div>
             <Row>
                 <Col md={9}>
-                    <div className="ag-theme-alpine" style={{ height: 400 }}>
+                    <div className="ag-theme-alpine" style={{ height: 500 }}>
                         <AgGridReact
                             rowData={rowData}
                             columnDefs={colDefs}

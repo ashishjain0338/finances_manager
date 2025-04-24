@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Collapse } from "react-bootstrap";
 import { CaretUpFill, CaretDownFill } from '../icons/icons';
 import { SPOFSummary } from './spof_summary';
+import { SPOFCustom } from './spof_custom';
 import "../common_styles/slider-button.css"
 
 
@@ -55,10 +56,7 @@ function SPOF(props) {
                 </div>
             </Collapse>
 
-
-            {/* <h3 style={{ padding: "5px" }}>Custom</h3>
-            <hr></hr> */}
-            {/* <Row>
+            <Row>
                 <Col>
                     <h3 style={{ padding: "5px" }}>Custom</h3>
                 </Col>
@@ -77,9 +75,9 @@ function SPOF(props) {
             <hr></hr>
             <Collapse in={customSectionCollapse}>
                 <div>
-                    <MaturityCustom dbObj={props.dbObj} isSumMode={isSumMode}/>
+                    <SPOFCustom dbObj={props.dbObj} isSumMode={isSumMode}/>
                 </div>
-            </Collapse> */}
+            </Collapse>
         </div>
     )
 
