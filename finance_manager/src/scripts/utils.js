@@ -91,4 +91,8 @@ export function capitalizeFirstLetter(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
-  
+
+export function moveKeyToFirst(obj, keyToMoveFirst) {
+    const { [keyToMoveFirst]: value, ...rest } = obj;
+    return { [keyToMoveFirst]: value, ...rest };
+  }

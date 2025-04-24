@@ -113,3 +113,14 @@ export const DANGER_LEVEL_DEFS = {
     "5": [{"primary": true, "secondary": true, "nomination": false}],
     "6": [{"primary": true, "secondary": true, "nomination": true}],
 }
+
+export const DANGER_LEVEL_DEFS_EXCEL = [
+    {"Primary": "No", "Secondary": "No", "Nomination": "No", "Level": 1},
+    {"Primary": "No", "Secondary": "No", "Nomination": "Yes", "Level": 2},
+    {"Primary": "Yes", "Secondary": "No", "Nomination": "No", "Level": 3},
+    {"Primary": "No", "Secondary": "Yes", "Nomination": "No", "Level": 3},
+    {"Primary": "Yes", "Secondary": "No", "Nomination": "Yes", "Level": 4},
+    {"Primary": "No", "Secondary": "Yes", "Nomination": "Yes", "Level": 4},
+    {"Primary": "Yes", "Secondary": "Yes", "Nomination": "No", "Level": 5},
+    {"Primary": "Yes", "Secondary": "Yes", "Nomination": "Yes", "Level": 6},
+]

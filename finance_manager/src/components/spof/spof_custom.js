@@ -1,14 +1,14 @@
-import { Row, Col, Form } from "react-bootstrap"
-import { useState, useEffect, useMemo } from "react"
-import { formatColDataForAGGrid, convertToIndiaCommaNotationFxn, convertSqlResultToDoughNutInput } from "../../scripts/utils";
+import { Row, Col, Form, Button } from "react-bootstrap"
+import { useState, useEffect, useMemo, useRef } from "react"
+import { formatColDataForAGGrid, convertToIndiaCommaNotationFxn, convertSqlResultToDoughNutInput, moveKeyToFirst } from "../../scripts/utils";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { themeAlpine } from "ag-grid-community";
 import { MyDoughnut } from "../summary/doughnut";
 import { SPOFDefination } from "./spof_definations";
+import { exportToExcelMultiSheet, sanitizeData, addSerialNumbers } from "../../scripts/excel_exporter";
+import { DANGER_LEVEL_DEFS_EXCEL } from "../../scripts/constant";
 import "../common_styles/ag-grid.css"
-import 'ag-grid-enterprise'; // Required for multi-sheet export
-
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -20,6 +20,7 @@ function SPOFCustom(props) {
     const [isBankGroupBy, setIsBankGroupBy] = useState(true);
     const [level, setLevel] = useState(0);
     const [plotData, setPlotData] = useState([["A", "B"],[1,2],0])
+    const gridRef = useRef();
 
     // Apply settings across all columns
     const defaultColDef = useMemo(() => ({
@@ -37,6 +38,30 @@ function SPOFCustom(props) {
             setLevel(val)
         }
     }
+
+    function exportSpofData(){
+        var sheetData = [DANGER_LEVEL_DEFS_EXCEL]
+        var sheetName = ["Definations"]
+        for(var lvl = 1; lvl <= 6; lvl++){
+            var [data, tot_row] = props.dbObj.getSpofDataByLevel(lvl)
+            // console.log(data, tot_row)
+            data.push(tot_row[0])
+            for(var i = 0; i < data.length; i++){
+                data[i]["Level"] = lvl
+                data[i] = moveKeyToFirst(data[i], "Level")
+            }
+            if(data.length == 0)
+                continue
+            var headers = Object.keys(data[0])
+            data = sanitizeData(data, headers, "")
+            data = addSerialNumbers(data)
+            sheetData.push(data)
+            sheetName.push(`Level-${lvl}`)
+        }
+        exportToExcelMultiSheet(sheetData, sheetName)
+        
+    }
+
 
     function setDangerLevelData(level) {
         var [data, tot_row] = props.dbObj.getSpofDataByLevel(level)
@@ -56,8 +81,6 @@ function SPOFCustom(props) {
                 formattedHeaders[i]["valueFormatter"] = (params) => { return convertToIndiaCommaNotationFxn(params.value) }
             }
         }
-        console.log(data)
-
         setRowData(data)
         setColDefs(formattedHeaders)
         setTotalRow(tot_row)
@@ -108,14 +131,19 @@ function SPOFCustom(props) {
                                 </Form.Select>
                             </Form.Group>
                         </Col>
+                        <Col>
+                        <Button style={{float: "right"}} onClick={() => {exportSpofData()}}>Export</Button>
+                        </Col>
                     </Row>
                     <Row>
                         <Col>
                         <hr />
                         <SPOFDefination level={level} />
+                        
                             <hr />
                             <div className="ag-theme-alpine" style={{ height: 400 }}>
                                 <AgGridReact
+                                    ref={gridRef}
                                     rowData={rowData}
                                     columnDefs={colDefs}
                                     defaultColDef={defaultColDef}
