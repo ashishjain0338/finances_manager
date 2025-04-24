@@ -1,5 +1,5 @@
 import { CheckCircleFill, XCircleFill } from 'react-bootstrap-icons';
-import { Badge, Table } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { DANGER_LEVEL_DEFS } from '../../scripts/constant';
 import { capitalizeFirstLetter } from '../../scripts/utils';

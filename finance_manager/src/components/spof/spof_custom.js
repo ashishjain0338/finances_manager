@@ -7,7 +7,7 @@ import { themeAlpine } from "ag-grid-community";
 import { MyDoughnut } from "../summary/doughnut";
 import { SPOFDefination } from "./spof_definations";
 import "../common_styles/ag-grid.css"
-// import 'ag-grid-enterprise'; // Required for multi-sheet export
+import 'ag-grid-enterprise'; // Required for multi-sheet export
 
 
 // Register all Community features
